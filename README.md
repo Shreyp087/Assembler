@@ -59,7 +59,7 @@ To run the assembler, ensure that you have the following software installed:
 3. **Run the program**:
    - After compiling the code, you can run the assembler using the following command:
      ```
-     java Assembler input.asm
+     java Assembler input.asm output.lst
      ```
    - Replace `input.asm` with the name of your assembly source file.
 
@@ -70,3 +70,9 @@ To run the assembler on your system, follow these steps:
 
 1. Create an assembly language file (`input.asm`) following the required format (described below).
 2. Run the assembler using the command:
+     ```
+     java Assembler input.asm output.lst
+     ```
+3. The assembler will generate two output files:
+- **`output.lst`**: Contains a human-readable view of the program with addresses.
+- **`output.obj`**: Contains the machine code in octal format.
