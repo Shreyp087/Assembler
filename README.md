@@ -3,7 +3,7 @@
 ## Team Details
 - **Team Number**: 8
 - **Team Members**:
-  - Shrey Patel
+  - Shrey Patel : G36586254
   - Anvay Paralikar : G41097732
   - Enter name
 
