@@ -5,7 +5,7 @@
 - **Team Members**:
   - Shrey Patel
   - Anvay Paralikar
-  - Shanthan Reddy
+  - Enter name
 
 The **C6461 Assembler** is a tool designed to convert assembly language code for a hypothetical C6461 microprocessor into machine code. It reads assembly instructions from a source file, processes them in two passes, and generates two output files:
 1. **List file (.lst)** - a human-readable file showing the assembly code with corresponding memory addresses.
