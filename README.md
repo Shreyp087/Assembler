@@ -1,7 +1,3 @@
-README File for GitHub
-markdown
-Copy
-Edit
 # C6461Assembler
 
 A simple assembler for a hypothetical assembly language. This program reads an assembly source file and converts it into machine code, producing both a list file (`.lst`) and an object file (`.obj`).
