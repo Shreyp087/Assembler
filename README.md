@@ -16,12 +16,6 @@ The **C6461 Assembler** is a tool designed to convert assembly language code for
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Input File Format](#input-file-format)
-- [Output Files](#output-files)
-- [Design and Functionality](#design-and-functionality)
-- [License](#license)
-- [Contributing](#contributing)
-- [Acknowledgments](#acknowledgments)
 
 ## Overview
 
