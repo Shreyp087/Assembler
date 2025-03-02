@@ -186,7 +186,7 @@ public class MachineSimulatorUI {
             return;
         }
     
-        // 🔹 Debugging Output Before Execution
+        // Debugging Output Before Execution
         System.out.println("Before Execution: PC = " + Integer.toOctalString(pc));
     
         // Fetch instruction
@@ -204,18 +204,18 @@ public class MachineSimulatorUI {
                 " | IR: " + Integer.toOctalString(ir) +
                 " | Opcode: " + Integer.toOctalString(opcode) + "\n");
     
-        executeInstruction(ir);  // ✅ Execute instruction
+        executeInstruction(ir);  // Execute instruction
     
         // 🔹 Move PC Forward **ONLY IF NOT HALTED**
         if (!pcField.getText().equals("HALT")) {  
-            pc++;  // ✅ Move to the next instruction **only if it's not HALT**
-            pcField.setText(Integer.toOctalString(pc));  // ✅ Update PC in UI
+            pc++;  // Move to the next instruction **only if it's not HALT**
+            pcField.setText(Integer.toOctalString(pc));  // Update PC in UI
         }
     
         // 🔹 Debugging Output After Execution
         System.out.println("After Execution: PC = " + Integer.toOctalString(pc));
     
-        updateUI();  // ✅ Ensure UI reflects the correct PC value
+        updateUI();  // Ensure UI reflects the correct PC value
     }
      
     private static void runProgram() {
@@ -271,7 +271,7 @@ public class MachineSimulatorUI {
             case 0x00:  // HALT
                 running = false;
                 printerArea.append("Program Halted.\n");
-                pcField.setText("HALT");  // ✅ Show HALT in UI
+                pcField.setText("HALT");  //  Show HALT in UI
                 return;  // Stop execution, do not increment PC
                 
             case 0x21:  // LDR (Load Register)
@@ -289,13 +289,13 @@ public class MachineSimulatorUI {
                 break;
         }
     
-        // // 🔹 ✅ Move PC Forward **ONLY IF NOT HALTED**
+        // //  Move PC Forward **ONLY IF NOT HALTED**
         // if (!pcField.getText().equals("HALT")) {
-        //     pc++;  // ✅ Increment PC if the program is still running
-        //     pcField.setText(Integer.toOctalString(pc));  // ✅ Update the PC field in the UI
+        //     pc++;  //  Increment PC if the program is still running
+        //     pcField.setText(Integer.toOctalString(pc));  //  Update the PC field in the UI
         // }
     
-        // 🔹 Debugging After Execution
+        //  Debugging After Execution
         System.out.println("After Execution: PC = " + Integer.toOctalString(pc));
     
         updateUI();  // ✅ Update UI to reflect the new PC value
