@@ -132,32 +132,63 @@ public class MachineSimulatorUI {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
         int returnValue = fileChooser.showOpenDialog(null);
+        
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             programFileField.setText(selectedFile.getAbsolutePath());
+    
+            // ✅ Clear memory before loading
+            for (int i = 0; i < memory.length; i++) {
+                memory[i] = 0;
+            }
+    
             readFile(selectedFile);
+            
+            // ✅ Set PC to 010 (octal 10) to match IPL behavior
+            pc = 010;
+            mar = pc;
+            mbr = memory[pc];
+            ir = mbr;
+    
+            updateCacheDisplay();
+            updateUI();
+            printerArea.append("ROM file loaded into memory successfully. PC set to start at " + Integer.toOctalString(pc) + "\n");
         }
-    }
+    }    
+    
 
     private static void readFile(File file) {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
+                
                 if (!line.isEmpty()) {
                     String[] parts = line.split("\\s+");
                     if (parts.length == 2) {
-                        int address = Integer.parseInt(parts[0], 8);
-                        int value = Integer.parseInt(parts[1], 8);
-                        memory[address] = value;
+                        try {
+                            int address = Integer.parseInt(parts[0], 8);
+                            int value = Integer.parseInt(parts[1], 8);
+                            if (address >= 0 && address < memory.length) {  // Prevent out-of-bounds memory access
+                                memory[address] = value;
+                            }
+                        } catch (NumberFormatException e) {
+                            printerArea.append("Invalid memory format: " + line + "\n");
+                        }
+                    } else {
+                        printerArea.append("Skipping invalid line: " + line + "\n");
                     }
                 }
             }
+            
+            //  Update UI with new memory contents
+            updateCacheDisplay();
             updateUI();
-            printerArea.append("ROM file loaded into memory successfully.\n");
+            printerArea.append("Memory successfully loaded from file.\n");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error reading file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     private static void initializeIPL() {
         loadROMFile();  // Load program into memory
@@ -298,10 +329,20 @@ public class MachineSimulatorUI {
         //  Debugging After Execution
         System.out.println("After Execution: PC = " + Integer.toOctalString(pc));
     
-        updateUI();  // ✅ Update UI to reflect the new PC value
+        updateUI();  //  Update UI to reflect the new PC value
     }
     
-
+    private static void updateCacheDisplay() {
+        StringBuilder cacheContent = new StringBuilder();
+        for (int i = 0; i < memory.length; i++) {
+            if (memory[i] != 0) {
+                cacheContent.append("Addr: ").append(Integer.toOctalString(i))
+                            .append(" → ").append(Integer.toOctalString(memory[i])).append("\n");
+            }
+        }
+        cacheArea.setText(cacheContent.toString());
+    }
+    
     private static void updateUI() {
         pcField.setText(Integer.toOctalString(pc));
         marField.setText(Integer.toOctalString(mar));
