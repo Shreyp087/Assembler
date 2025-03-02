@@ -104,10 +104,10 @@ public class MachineSimulatorUI {
         frame.add(stepBtn);
         stepBtn.addActionListener(e -> stepInstruction());
 
-        JButton haltBtn = new JButton("Halt");
-        haltBtn.setBounds(300, 350, 80, 30);
-        frame.add(haltBtn);
-        haltBtn.addActionListener(e -> running = false);
+        // JButton haltBtn = new JButton("Halt");
+        // haltBtn.setBounds(300, 350, 80, 30);
+        // frame.add(haltBtn);
+        // haltBtn.addActionListener(e -> running = false);
 
         JButton iplBtn = new JButton("IPL");
         iplBtn.setBounds(400, 350, 80, 30);
