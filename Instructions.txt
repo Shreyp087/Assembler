@@ -1,6 +1,6 @@
 STEPS TO RUN THE CODE
 
-1) Unzip the folder named Team7Project-1, go to out -> artifacts -> p1New_jar and you can see a jar file, instructions and input file, now run the jar file.
+1) Unzip the folder named Team8Project-1, go to out -> artifacts -> p1New_jar and you can see a jar file, instructions and input file, now run the jar file.
 2) You will see the simulator interface.
 3) Now for running a load file, click on the ipl button it will help you choose a file from your system.
 4) The selected file's instruction have to be in octal (like the output we get from an assembler). These instructions will be displayed in printer output text field.
