@@ -104,11 +104,14 @@ public class MachineSimulatorUI {
         frame.add(stepBtn);
         stepBtn.addActionListener(e -> stepInstruction());
 
-        // JButton haltBtn = new JButton("Halt");
-        // haltBtn.setBounds(300, 350, 80, 30);
-        // frame.add(haltBtn);
-        // haltBtn.addActionListener(e -> running = false);
-
+        JButton haltBtn = new JButton("Halt");
+        haltBtn.setBounds(300, 350, 80, 30);
+        frame.add(haltBtn);
+        haltBtn.addActionListener(e -> {
+            running = false;
+            printerArea.append("Program Halted by User.\n");
+        });
+        
         JButton iplBtn = new JButton("IPL");
         iplBtn.setBounds(400, 350, 80, 30);
         frame.add(iplBtn);
@@ -191,24 +194,44 @@ public class MachineSimulatorUI {
     
 
     private static void initializeIPL() {
-        loadROMFile();  // Load program into memory
-        pc = 010;  // Set PC to Octal 10 (Start execution at memory address 10)
+        // ✅ Reset the system state before loading a new program
+        running = false; // Stop any previously running execution
+        for (int i = 0; i < memory.length; i++) {
+            memory[i] = 0; // Clear memory
+        }
+    
+        loadROMFile(); // Load program into memory
+    
+        // ✅ Ensure PC is within valid memory range
+        pc = 010; // Set PC to Octal 10 (Start execution at memory address 10)
+        if (pc >= memory.length) {
+            printerArea.append("Error: PC out of memory range!\n");
+            return;
+        }
+    
+        // ✅ Reset all registers before execution
+        for (JTextField field : gprFields) field.setText("0");
+        for (JTextField field : ixrFields) field.setText("0");
+    
         mar = pc;
         mbr = memory[pc];
         ir = mbr;
     
+        // ✅ Update cache content display
         StringBuilder cacheContent = new StringBuilder();
         for (int i = 0; i < memory.length; i++) {
             if (memory[i] != 0) {  
                 cacheContent.append("Addr: ").append(Integer.toOctalString(i))
-                        .append(" → ").append(Integer.toOctalString(memory[i])).append("\n");
+                            .append(" → ").append(Integer.toOctalString(memory[i])).append("\n");
             }
         }
         cacheArea.setText(cacheContent.toString());
     
+        // ✅ Notify user and update UI
         printerArea.append("IPL executed. PC set to first instruction at " + Integer.toOctalString(pc) + "\n");
         updateUI();
     }
+    
     
 
     private static void stepInstruction() {
