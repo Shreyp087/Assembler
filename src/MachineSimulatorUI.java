@@ -13,16 +13,21 @@ public class MachineSimulatorUI {
     private static int pc = 0, mar = 0, mbr = 0, ir = 0;
     private static boolean running = false;
 
+    // ---------------------------
+    // NEW: Simple Cache (16 lines)
+    // ---------------------------
+    private static Cache cache = new Cache(16);
+
     public static void main(String[] args) {
         JFrame frame = new JFrame("CSCI 6461 Machine Simulator");
-        frame.setSize(900, 600);
+        frame.setSize(1000, 650);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setBackground(new Color(173, 216, 230));
         frame.setLayout(null);
 
         JLabel title = new JLabel("CSCI 6461 Machine Simulator", SwingConstants.CENTER);
         title.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 20));
-        title.setBounds(250, 10, 400, 30);
+        title.setBounds(300, 10, 400, 30);
         frame.add(title);
 
         setupRegisterFields(frame);
@@ -68,27 +73,27 @@ public class MachineSimulatorUI {
 
     private static void setupMemoryAndConsole(JFrame frame) {
         JLabel cacheLabel = new JLabel("Cache Content");
-        cacheLabel.setBounds(650, 50, 100, 20);
+        cacheLabel.setBounds(700, 50, 100, 20);
         frame.add(cacheLabel);
         cacheArea = new JTextArea();
         JScrollPane cacheScroll = new JScrollPane(cacheArea);
-        cacheScroll.setBounds(650, 80, 200, 100);
+        cacheScroll.setBounds(700, 80, 200, 100);
         frame.add(cacheScroll);
 
         JLabel printerLabel = new JLabel("Printer");
-        printerLabel.setBounds(650, 190, 100, 20);
+        printerLabel.setBounds(700, 190, 100, 20);
         frame.add(printerLabel);
         printerArea = new JTextArea();
         JScrollPane printerScroll = new JScrollPane(printerArea);
-        printerScroll.setBounds(650, 210, 200, 60);
+        printerScroll.setBounds(700, 210, 200, 60);
         frame.add(printerScroll);
 
         JLabel programFileLabel = new JLabel("Program File:");
-        programFileLabel.setBounds(650, 280, 100, 20);
+        programFileLabel.setBounds(700, 280, 100, 20);
         frame.add(programFileLabel);
 
         programFileField = new JTextField();
-        programFileField.setBounds(650, 300, 200, 25);
+        programFileField.setBounds(700, 300, 200, 25);
         programFileField.setEditable(false);
         frame.add(programFileField);
     }
@@ -117,15 +122,13 @@ public class MachineSimulatorUI {
         frame.add(iplBtn);
         iplBtn.addActionListener(e -> initializeIPL());
 
-    
-
         JButton runBtn = new JButton("Run");
         runBtn.setBounds(500, 350, 80, 30);
         frame.add(runBtn);
         runBtn.addActionListener(e -> runProgram());
 
         JButton storeBtn = new JButton("Store");
-        // Move it to a new position, e.g. (600, 350)
+        // Moved to 600, 350
         storeBtn.setBounds(600, 350, 80, 30);
         frame.add(storeBtn);
         storeBtn.addActionListener(e -> storeToFile());
@@ -146,8 +149,8 @@ public class MachineSimulatorUI {
             }
     
             readFile(selectedFile);
-            
-            // ✅ Set PC to 010 (octal 10) to match IPL behavior
+    
+            // ✅ Set PC to 010 (Octal 10) to match IPL behavior
             pc = 010;
             mar = pc;
             mbr = memory[pc];
@@ -155,10 +158,12 @@ public class MachineSimulatorUI {
     
             updateCacheDisplay();
             updateUI();
-            printerArea.append("ROM file loaded into memory successfully. PC set to start at " + Integer.toOctalString(pc) + "\n");
-        }
-    }    
     
+            // ✅ Ensure the printer output also uses octal formatting
+            printerArea.append("ROM file loaded into memory successfully. PC set to start at "
+                               + String.format("%06o", pc) + "\n");
+        }
+    }
 
     private static void readFile(File file) {
         try (Scanner scanner = new Scanner(file)) {
@@ -171,7 +176,7 @@ public class MachineSimulatorUI {
                         try {
                             int address = Integer.parseInt(parts[0], 8);
                             int value = Integer.parseInt(parts[1], 8);
-                            if (address >= 0 && address < memory.length) {  // Prevent out-of-bounds memory access
+                            if (address >= 0 && address < memory.length) {  
                                 memory[address] = value;
                             }
                         } catch (NumberFormatException e) {
@@ -183,18 +188,16 @@ public class MachineSimulatorUI {
                 }
             }
             
-            //  Update UI with new memory contents
             updateCacheDisplay();
             updateUI();
             printerArea.append("Memory successfully loaded from file.\n");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error reading file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error reading file: " + e.getMessage(),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 
     private static void initializeIPL() {
-        // ✅ Reset the system state before loading a new program
         running = false; // Stop any previously running execution
         for (int i = 0; i < memory.length; i++) {
             memory[i] = 0; // Clear memory
@@ -202,14 +205,14 @@ public class MachineSimulatorUI {
     
         loadROMFile(); // Load program into memory
     
-        // ✅ Ensure PC is within valid memory range
-        pc = 010; // Set PC to Octal 10 (Start execution at memory address 10)
+        // Set PC to 010 (Octal 10)
+        pc = 010; 
         if (pc >= memory.length) {
             printerArea.append("Error: PC out of memory range!\n");
             return;
         }
     
-        // ✅ Reset all registers before execution
+        // Reset all registers before execution
         for (JTextField field : gprFields) field.setText("0");
         for (JTextField field : ixrFields) field.setText("0");
     
@@ -217,22 +220,23 @@ public class MachineSimulatorUI {
         mbr = memory[pc];
         ir = mbr;
     
-        // ✅ Update cache content display
+        // Show non-zero memory in cache area (existing logic)
         StringBuilder cacheContent = new StringBuilder();
         for (int i = 0; i < memory.length; i++) {
-            if (memory[i] != 0) {  
-                cacheContent.append("Addr: ").append(Integer.toOctalString(i))
-                            .append(" → ").append(Integer.toOctalString(memory[i])).append("\n");
+            if (memory[i] != 0) {
+                cacheContent.append("Addr: ")
+                            .append(String.format("%06o", i))
+                            .append(" → ")
+                            .append(String.format("%06o", memory[i]))
+                            .append("\n");
             }
         }
         cacheArea.setText(cacheContent.toString());
     
-        // ✅ Notify user and update UI
-        printerArea.append("IPL executed. PC set to first instruction at " + Integer.toOctalString(pc) + "\n");
+        printerArea.append("IPL executed. PC set to first instruction at "
+                           + String.format("%06o", pc) + "\n");
         updateUI();
     }
-    
-    
 
     private static void stepInstruction() {
         if (pc >= memory.length) {
@@ -243,7 +247,7 @@ public class MachineSimulatorUI {
         // Debugging Output Before Execution
         System.out.println("Before Execution: PC = " + Integer.toOctalString(pc));
     
-        // Fetch instruction
+        // Fetch instruction (still from memory directly, no changes)
         mar = pc;
         mbr = memory[mar];
         ir = mbr;
@@ -260,28 +264,24 @@ public class MachineSimulatorUI {
     
         executeInstruction(ir);  // Execute instruction
     
-        // 🔹 Move PC Forward **ONLY IF NOT HALTED**
-        if (!pcField.getText().equals("HALT")) {  
-            pc++;  // Move to the next instruction **only if it's not HALT**
-            pcField.setText(Integer.toOctalString(pc));  // Update PC in UI
+        // Move PC if not halted
+        if (!pcField.getText().equals("HALT")) {
+            pc++;
+            pcField.setText(Integer.toOctalString(pc));
         }
     
-        // 🔹 Debugging Output After Execution
+        // Debugging Output After Execution
         System.out.println("After Execution: PC = " + Integer.toOctalString(pc));
     
-        updateUI();  // Ensure UI reflects the correct PC value
+        updateUI();
     }
-     
+
     private static void runProgram() {
         new Thread(() -> {
             running = true;
             while (running && pc < memory.length) {
-                // Update the UI on the Event Dispatch Thread
-                SwingUtilities.invokeLater(() -> {
-                    stepInstruction();
-                });
+                SwingUtilities.invokeLater(() -> stepInstruction());
                 try {
-                    // Delay between instructions (500 milliseconds here)
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -291,7 +291,7 @@ public class MachineSimulatorUI {
             }
         }).start();
     }
-    
+
     private static void storeToFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text Files", "txt"));
@@ -307,69 +307,163 @@ public class MachineSimulatorUI {
                 }
                 printerArea.append("Memory stored successfully to " + file.getAbsolutePath() + "\n");
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Error storing file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Error storing file: " + e.getMessage(),
+                                              "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    
 
     private static void executeInstruction(int instruction) {
-        int opcode = (instruction >> 10) & 0x3F;  // Extract opcode
-        int address = instruction & 0x3FF;  // Extract address part (last 10 bits)
-        int register = (instruction >> 8) & 0x3;  // Extract register number
+        int opcode   = (instruction >> 10) & 0x3F;  // Extract opcode
+        int address  = instruction & 0x3FF;         // Last 10 bits
+        int register = (instruction >> 8) & 0x3;    // Bits [9..8]
     
-        // 🔹 Debugging Before Execution
-        System.out.println("Before Execution: PC = " + Integer.toOctalString(pc));
+        // Debugging Output Before Execution
+        System.out.println("Before Execution: PC = " + String.format("%06o", pc));
     
         switch (opcode) {
             case 0x00:  // HALT
                 running = false;
                 printerArea.append("Program Halted.\n");
-                pcField.setText("HALT");  //  Show HALT in UI
-                return;  // Stop execution, do not increment PC
-                
+                pcField.setText("HALT");
+                return;
+    
             case 0x21:  // LDR (Load Register)
-                gprFields[register].setText(Integer.toOctalString(memory[address]));
-                printerArea.append("LDR executed: R" + register + " ← Memory[" + Integer.toOctalString(address) + "]\n");
+                // NEW: read from cache instead of memory
+                int data = cache.read(address);
+                gprFields[register].setText(String.format("%06o", data));
+                printerArea.append("LDR executed: R" + register + " ← Memory[" 
+                                   + String.format("%06o", address) + "] via Cache\n");
                 break;
     
             case 0x22:  // STR (Store Register)
-                memory[address] = Integer.parseInt(gprFields[register].getText(), 8);
-                printerArea.append("STR executed: Memory[" + Integer.toOctalString(address) + "] ← R" + register + "\n");
+                // NEW: write to cache (which writes through to memory)
+                int value = Integer.parseInt(gprFields[register].getText(), 8);
+                cache.write(address, value);
+                printerArea.append("STR executed: Memory[" + String.format("%06o", address) 
+                                   + "] ← R" + register + " via Cache\n");
                 break;
     
             default:
-                printerArea.append("Unknown Instruction: " + Integer.toOctalString(instruction) + "\n");
+                printerArea.append("Unknown Instruction: " 
+                                   + String.format("%06o", instruction) + "\n");
                 break;
         }
     
-        // //  Move PC Forward **ONLY IF NOT HALTED**
-        // if (!pcField.getText().equals("HALT")) {
-        //     pc++;  //  Increment PC if the program is still running
-        //     pcField.setText(Integer.toOctalString(pc));  //  Update the PC field in the UI
-        // }
-    
-        //  Debugging After Execution
-        System.out.println("After Execution: PC = " + Integer.toOctalString(pc));
-    
-        updateUI();  //  Update UI to reflect the new PC value
+        updateUI();
     }
-    
+      
     private static void updateCacheDisplay() {
+        // Original memory display logic (unchanged)
         StringBuilder cacheContent = new StringBuilder();
         for (int i = 0; i < memory.length; i++) {
             if (memory[i] != 0) {
-                cacheContent.append("Addr: ").append(Integer.toOctalString(i))
-                            .append(" → ").append(Integer.toOctalString(memory[i])).append("\n");
+                cacheContent.append("Addr: ")
+                            .append(String.format("%06o", i))
+                            .append(" → ")
+                            .append(String.format("%06o", memory[i]))
+                            .append("\n");
             }
         }
         cacheArea.setText(cacheContent.toString());
+
+        // NEW: Append the actual cache lines after the memory listing
+        cacheArea.append("\n=== Cache Lines ===\n");
+        cacheArea.append(cache.getCacheContent());
     }
     
+    
     private static void updateUI() {
-        pcField.setText(Integer.toOctalString(pc));
-        marField.setText(Integer.toOctalString(mar));
-        mbrField.setText(Integer.toOctalString(mbr));
-        irField.setText(Integer.toOctalString(ir));
+        pcField.setText(String.format("%06o", pc));
+        marField.setText(String.format("%06o", mar));
+        mbrField.setText(String.format("%06o", mbr));
+        irField.setText(String.format("%06o", ir));
+    }
+    
+    // --------------------------------
+    // NEW: Classes for Fully Associative Cache
+    // --------------------------------
+    static class CacheLine {
+        boolean valid;
+        int tag;
+        int data;
+
+        public CacheLine() {
+            valid = false;
+            tag = -1;
+            data = 0;
+        }
+    }
+
+    static class Cache {
+        private CacheLine[] lines;
+        private int nextReplaceIndex; // FIFO pointer
+
+        public Cache(int numberOfLines) {
+            lines = new CacheLine[numberOfLines];
+            for (int i = 0; i < numberOfLines; i++) {
+                lines[i] = new CacheLine();
+            }
+            nextReplaceIndex = 0;
+        }
+
+        // Read: check if address is in any valid line
+        // On miss, load from memory, replace line at nextReplaceIndex
+        public int read(int address) {
+            for (CacheLine line : lines) {
+                if (line.valid && line.tag == address) {
+                    // HIT
+                    printerArea.append("Cache HIT for address " + String.format("%06o", address) + "\n");
+                    return line.data;
+                }
+            }
+            // MISS
+            printerArea.append("Cache MISS for address " + String.format("%06o", address) + "\n");
+            int dataFromMem = memory[address];
+            CacheLine replace = lines[nextReplaceIndex];
+            replace.valid = true;
+            replace.tag = address;
+            replace.data = dataFromMem;
+            nextReplaceIndex = (nextReplaceIndex + 1) % lines.length;
+            return dataFromMem;
+        }
+
+        // Write: write-through to memory, update cache if line is present; otherwise replace FIFO line
+        public void write(int address, int value) {
+            memory[address] = value; // write-through
+            for (CacheLine line : lines) {
+                if (line.valid && line.tag == address) {
+                    line.data = value;
+                    printerArea.append("Cache HIT on write for address " 
+                                       + String.format("%06o", address) + "\n");
+                    return;
+                }
+            }
+            // MISS
+            printerArea.append("Cache MISS on write for address " 
+                               + String.format("%06o", address) + "\n");
+            CacheLine replace = lines[nextReplaceIndex];
+            replace.valid = true;
+            replace.tag = address;
+            replace.data = value;
+            nextReplaceIndex = (nextReplaceIndex + 1) % lines.length;
+        }
+
+        // Return a text representation of all cache lines
+        public String getCacheContent() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                CacheLine line = lines[i];
+                sb.append("Line ").append(i).append(": ");
+                if (line.valid) {
+                    sb.append("Addr=").append(String.format("%06o", line.tag))
+                      .append(", Data=").append(String.format("%06o", line.data));
+                } else {
+                    sb.append("Empty");
+                }
+                sb.append("\n");
+            }
+            return sb.toString();
+        }
     }
 }
